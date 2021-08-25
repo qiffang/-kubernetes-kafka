@@ -50,11 +50,7 @@ data:
 
     listeners=CONTROLPLANE-9090://0.0.0.0:9090,REPLICATION-9091://0.0.0.0:9091,PLAIN-9092://0.0.0.0:9092
     advertised.listeners=CONTROLPLANE-9090://my-cluster-kafka-${STRIMZI_BROKER_ID}.my-cluster-kafka-brokers.prod.svc:9090,REPLICATION-9091://my-cluster-kafka-${STRIMZI_BROKER_ID}.my-cluster-kafka-brokers.prod.svc:9091,PLAIN-9092://${STRIMZI_PLAIN_9092_ADVERTISED_HOSTNAME}:${STRIMZI_PLAIN_9092_ADVERTISED_PORT}
-#    listener.security.protocol.map=CONTROLPLANE-9090:PLAINTEXT,REPLICATION-9091:PLAINTEXT,PLAIN-9092:PLAINTEXT
     inter.broker.listener.name=REPLICATION-9091
-#    sasl.enabled.mechanisms=
-#    ssl.secure.random.implementation=SHA1PRNG
-#    ssl.endpoint.identification.algorithm=HTTPS
 
     ##########
     # User provided configuration
