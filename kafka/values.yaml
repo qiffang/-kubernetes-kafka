@@ -3,7 +3,7 @@
 # Declare variables to be passed into your templates.
 
 zookeeper:
-  image:
+  image: qiffang199133/kafka:0.25.0-kafka-2.8.0-dev.12
   name: my-cluster-zookeeper
   replicas: 3
 
