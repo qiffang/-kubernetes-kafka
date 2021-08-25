@@ -1,6 +1,6 @@
 # Kafka for Kubernetes
 
-It depends on strimiz kafka operator, but it is more convenient
+It depends on [strimzi kafka](https://strimzi.io/) operator, but it is more convenient
 * Disable tls for zookeeper and kafka
 * Modifying the configuration is easier
 
