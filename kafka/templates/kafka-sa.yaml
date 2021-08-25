@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/name: kafka
+    strimzi.io/kind: Kafka
+  name: {{ .Values.kafka.name }}
+  namespace: {{ .Release.Namespace }}

@@ -1,0 +1,128 @@
+kind: StatefulSet
+metadata:
+  labels:
+    app.kubernetes.io/name: kafka
+    strimzi.io/kind: Kafka
+  name: {{ .Values.kafka.name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  podManagementPolicy: Parallel
+  replicas: {{ .Values.kafka.replicas }}
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      strimzi.io/kind: Kafka
+      app.kubernetes.io/name: kafka
+  serviceName: {{ .Values.kafka.name }}-brokers
+  template:
+    metadata:
+      labels:
+        strimzi.io/kind: Kafka
+        app.kubernetes.io/name: kafka
+      name: {{ .Values.kafka.name }}
+    spec:
+      containers:
+      - command:
+        - /opt/kafka/kafka_run.sh
+        env:
+        - name: KAFKA_METRICS_ENABLED
+          value: "false"
+        - name: STRIMZI_KAFKA_GC_LOG_ENABLED
+          value: "false"
+        - name: KAFKA_HEAP_OPTS
+          value: -Xms128M
+        image: qiffang199133/kafka:0.25.0-kafka-2.8.0-dev.12
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          exec:
+            command:
+            - /opt/kafka/kafka_liveness.sh
+          failureThreshold: 10
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+        name: kafka
+        ports:
+        - containerPort: 9090
+          name: tcp-ctrlplane
+          protocol: TCP
+        - containerPort: 9091
+          name: tcp-replication
+          protocol: TCP
+        - containerPort: 9092
+          name: tcp-clients
+          protocol: TCP
+        readinessProbe:
+          exec:
+            command:
+            - test
+            - -f
+            - /var/opt/kafka/kafka-ready
+          failureThreshold: 3
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+        volumeMounts:
+        - mountPath: /var/lib/kafka/data-0
+          name: data-0
+        - mountPath: /tmp
+          name: strimzi-tmp
+#        - mountPath: /opt/kafka/cluster-ca-certs
+#          name: cluster-ca
+#        - mountPath: /opt/kafka/broker-certs
+#          name: broker-certs
+#        - mountPath: /opt/kafka/client-ca-certs
+#          name: client-ca-cert
+        - mountPath: /opt/kafka/custom-config/
+          name: kafka-metrics-and-logging
+        - mountPath: /var/opt/kafka
+          name: ready-files
+      dnsPolicy: ClusterFirst
+      imagePullSecrets:
+      - name: zp-docker-secret
+      restartPolicy: Always
+      serviceAccount: {{ .Values.kafka.name }}
+      serviceAccountName: {{ .Values.kafka.name }}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - emptyDir:
+          medium: Memory
+          sizeLimit: 1Mi
+        name: strimzi-tmp
+#      - name: cluster-ca
+#        secret:
+#          defaultMode: 292
+#          secretName: my-cluster-cluster-ca-cert
+#      - name: broker-certs
+#        secret:
+#          defaultMode: 292
+#          secretName: my-cluster-kafka-brokers
+#      - name: client-ca-cert
+#        secret:
+#          defaultMode: 292
+#          secretName: my-cluster-clients-ca-cert
+      - configMap:
+          defaultMode: 420
+          name: my-cluster-kafka-config
+        name: kafka-metrics-and-logging
+      - emptyDir:
+          medium: Memory
+          sizeLimit: 1Ki
+        name: ready-files
+  updateStrategy:
+    type: OnDelete
+  volumeClaimTemplates:
+  - apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      name: data-0
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 5Gi
+      storageClassName: local-storage
+      volumeMode: Filesystem

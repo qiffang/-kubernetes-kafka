@@ -1,0 +1,106 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    strimzi.io/kind: zookeeper
+    app.kubernetes.io/name: zookeeper
+  name: {{ .Values.zookeeper.name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  podManagementPolicy: Parallel
+  replicas:  {{ .Values.zookeeper.replicas }}
+  selector:
+    matchLabels:
+      strimzi.io/kind: zookeeper
+      app.kubernetes.io/name: zookeeper
+  serviceName: {{ .Values.zookeeper.name }}-nodes
+  template:
+    metadata:
+      labels:
+        strimzi.io/kind: zookeeper
+        app.kubernetes.io/name: zookeeper
+      name: {{ .Values.zookeeper.name }}
+    spec:
+      containers:
+      - command:
+        - /opt/kafka/zookeeper_run.sh
+        env:
+        - name: ZOOKEEPER_METRICS_ENABLED
+          value: "false"
+        - name: ZOOKEEPER_SNAPSHOT_CHECK_ENABLED
+          value: "true"
+        - name: STRIMZI_KAFKA_GC_LOG_ENABLED
+          value: "false"
+        - name: KAFKA_HEAP_OPTS
+          value: -Xms128M
+        - name: ZOOKEEPER_CONFIGURATION
+          value: |
+            tickTime=2000
+            initLimit=5
+            syncLimit=2
+            autopurge.purgeInterval=1
+        image: {{ .Values.zookeeper.image }}
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          exec:
+            command:
+            - /opt/kafka/zookeeper_healthcheck.sh
+          failureThreshold: 10
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+        name: zookeeper
+        ports:
+        - containerPort: 2888
+          name: tcp-clustering
+          protocol: TCP
+        - containerPort: 3888
+          name: tcp-election
+          protocol: TCP
+        - containerPort: 2181
+          name: tcp-clients
+          protocol: TCP
+        readinessProbe:
+          exec:
+            command:
+            - /opt/kafka/zookeeper_healthcheck.sh
+          failureThreshold: 5
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+        volumeMounts:
+        - mountPath: /tmp
+          name: strimzi-tmp
+        - mountPath: /var/lib/zookeeper
+          name: data
+        - mountPath: /opt/kafka/custom-config/
+          name: zookeeper-metrics-and-logging
+      dnsPolicy: ClusterFirst
+      serviceAccount: {{ .Values.zookeeper.name }}
+      serviceAccountName: {{ .Values.zookeeper.name }}
+      volumes:
+      - emptyDir:
+          medium: Memory
+          sizeLimit: 1Mi
+        name: strimzi-tmp
+      - configMap:
+          defaultMode: 420
+          name: {{ .Values.zookeeper.name }}-config
+        name: zookeeper-metrics-and-logging
+  updateStrategy:
+    type: OnDelete
+  volumeClaimTemplates:
+  - apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      name: data
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 5Gi
+      storageClassName: local-storage
+      volumeMode: Filesystem

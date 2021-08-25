@@ -1,0 +1,54 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/name: kafka
+    strimzi.io/kind: Kafka
+  name: {{ .Values.kafka.name }}-bootstrap
+  namespace: {{ .Release.Namespace }}
+spec:
+  ports:
+  - name: tcp-replication
+    port: 9091
+    protocol: TCP
+    targetPort: 9091
+  - name: tcp-clients
+    port: 9092
+    protocol: TCP
+    targetPort: 9092
+  selector:
+    strimzi.io/kind: Kafka
+    app.kubernetes.io/name: kafka
+  type: ClusterIP
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/name: kafka
+    strimzi.io/kind: Kafka
+  name: {{ .Values.kafka.name }}-bootstrap
+  namespace: {{ .Release.Namespace }}
+spec:
+  clusterIP: None
+  ports:
+  - name: tcp-ctrlplane
+    port: 9090
+    protocol: TCP
+    targetPort: 9090
+  - name: tcp-replication
+    port: 9091
+    protocol: TCP
+    targetPort: 9091
+  - name: tcp-clients
+    port: 9092
+    protocol: TCP
+    targetPort: 9092
+  publishNotReadyAddresses: true
+  selector:
+    strimzi.io/kind: Kafka
+    app.kubernetes.io/name: kafka
+  sessionAffinity: None
+  type: ClusterIP
