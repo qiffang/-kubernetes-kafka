@@ -32,7 +32,7 @@ spec:
           value: "false"
         - name: KAFKA_HEAP_OPTS
           value: -Xms128M
-        image: qiffang199133/kafka:0.25.0-kafka-2.8.0-dev.12
+        image: {{ .Values.kafka.image }}
         imagePullPolicy: IfNotPresent
         livenessProbe:
           exec:

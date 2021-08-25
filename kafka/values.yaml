@@ -3,12 +3,12 @@
 # Declare variables to be passed into your templates.
 
 zookeeper:
-  image: qiffang199133/kafka:0.25.0-kafka-2.8.0-dev.12
+  image: qiffang199133/kafka:0.25.0-kafka-2.8.0-dev.13
   name: my-cluster-zookeeper
   replicas: 3
 
 kafka:
   name: my-cluster-kafka
   replicas: 3
-  image: qiffang199133/kafka:0.25.0-kafka-2.8.0-dev.12
+  image: qiffang199133/kafka:0.25.0-kafka-2.8.0-dev.13
   version: 2.8
