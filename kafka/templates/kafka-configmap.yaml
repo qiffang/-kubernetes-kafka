@@ -49,8 +49,10 @@ data:
     log.dirs=/var/lib/kafka/data-0/kafka-log${STRIMZI_BROKER_ID}
 
     #listeners=CONTROLPLANE-9090://0.0.0.0:9090,REPLICATION-9091://0.0.0.0:9091,PLAIN-9092://0.0.0.0:9092
-    listeners=PLAINTEXT://0.0.0.0:9092
-    advertised.listeners=PLAINTEXT://${STRIMZI_PLAIN_9092_ADVERTISED_HOSTNAME}:${STRIMZI_PLAIN_9092_ADVERTISED_PORT}
+    listeners=PRIVATE://0.0.0.0:9091,PUBLIC://0.0.0.0:9092
+    advertised.listeners=PRIVATE://{{ .Values.kafka.name }}-${STRIMZI_BROKER_ID}.{{ .Values.kafka.name }}-brokers.{{ .Release.Namespace }}.svc:9091,PUBLIC://{{ .Values.kafka.name }}-${STRIMZI_BROKER_ID}.{{ .Values.kafka.name }}-brokers.{{ .Release.Namespace }}.svc:${STRIMZI_PLAIN_9092_ADVERTISED_PORT}
+    listener.security.protocol.map=PRIVATE:PLAINTEXT,PUBLIC:PLAINTEXT
+    inter.broker.listener.name=PRIVATE
     #advertised.listeners=CONTROLPLANE-9090://my-cluster-kafka-${STRIMZI_BROKER_ID}.my-cluster-kafka-brokers.prod.svc:9090,REPLICATION-9091://my-cluster-kafka-${STRIMZI_BROKER_ID}.my-cluster-kafka-brokers.prod.svc:9091,PLAIN-9092://${STRIMZI_PLAIN_9092_ADVERTISED_HOSTNAME}:${STRIMZI_PLAIN_9092_ADVERTISED_PORT}
     #inter.broker.listener.name=REPLICATION-9091
     #listener.security.protocol.map=CONTROLPLANE-9090:PLAINTEXT,REPLICATION-9091:PLAINTEXT,PLAIN-9092:PLAINTEXT

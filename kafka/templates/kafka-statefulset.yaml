@@ -106,7 +106,7 @@ spec:
 #          secretName: my-cluster-clients-ca-cert
       - configMap:
           defaultMode: 420
-          name: my-cluster-kafka-config
+          name: {{ .Values.kafka.name }}-config
         name: kafka-metrics-and-logging
       - emptyDir:
           medium: Memory
