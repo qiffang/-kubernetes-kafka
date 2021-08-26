@@ -27,7 +27,7 @@ spec:
         - /opt/kafka/kafka_run.sh
         env:
         - name: KAFKA_METRICS_ENABLED
-          value: "false"
+          value: "true"
         - name: STRIMZI_KAFKA_GC_LOG_ENABLED
           value: "false"
         - name: KAFKA_HEAP_OPTS
@@ -124,6 +124,6 @@ spec:
       - ReadWriteOnce
       resources:
         requests:
-          storage: 5Gi
-      storageClassName: local-storage
+          storage: {{ .Values.kafka.storageSize }}
+      storageClassName: {{ .Values.kafka.storageClass }}
       volumeMode: Filesystem

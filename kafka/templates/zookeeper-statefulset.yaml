@@ -26,13 +26,15 @@ spec:
         - /opt/kafka/zookeeper_run.sh
         env:
         - name: ZOOKEEPER_METRICS_ENABLED
-          value: "false"
+          value: "true"
         - name: ZOOKEEPER_SNAPSHOT_CHECK_ENABLED
           value: "true"
         - name: STRIMZI_KAFKA_GC_LOG_ENABLED
           value: "false"
         - name: KAFKA_HEAP_OPTS
           value: -Xms128M
+        - name: STRIMZI_JAVA_SYSTEM_PROPERTIES
+          value: "-Dzookeeper.globalOutstandingLimit=3000"
         - name: ZOOKEEPER_CONFIGURATION
           value: |
             tickTime=2000
@@ -101,6 +103,6 @@ spec:
       - ReadWriteOnce
       resources:
         requests:
-          storage: 5Gi
-      storageClassName: local-storage
+          storage: {{ .Values.zookeeper.storageSize }}
+      storageClassName: {{ .Values.zookeeper.storageClass }}
       volumeMode: Filesystem

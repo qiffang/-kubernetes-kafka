@@ -7,7 +7,7 @@ data:
     log4j.appender.CONSOLE.layout.ConversionPattern=%d{ISO8601} %p %m (%c) [%t]%n
     zookeeper.root.logger=DEBUG
     log4j.rootLogger=${zookeeper.root.logger}, CONSOLE
-  zookeeper.node-count: "3"
+  zookeeper.node-count: "{{ .Values.zookeeper.replicas }}"
 kind: ConfigMap
 metadata:
   labels:
